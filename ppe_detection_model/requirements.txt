@@ -1,0 +1,3 @@
+tensorflow==2.13.0  # Ensure compatibility with CUDA 12.4
+opencv-python==4.8.0.74
+sqlite3  # SQLite is usually included with Python, so no need to specify this unless using an external package
