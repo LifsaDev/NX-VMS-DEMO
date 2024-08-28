@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   video-ingestion-1:
-    image: video-ingestion:latest
+    build:
+      context: ./video-ingestion
+      dockerfile: Dockerfile
     environment:
       - CAMERA_URL=rtsp://camera1_url
       - QUEUE_NAME=video_frames
@@ -11,7 +13,9 @@ services:
       - rabbitmq
 
   video-ingestion-2:
-    image: video-ingestion:latest
+    build:
+      context: ./video-ingestion
+      dockerfile: Dockerfile
     environment:
       - CAMERA_URL=rtsp://camera2_url
       - QUEUE_NAME=video_frames
@@ -20,7 +24,9 @@ services:
       - rabbitmq
 
   face-recognition:
-    image: face-recognition:latest
+    build:
+      context: ./face-recognition
+      dockerfile: Dockerfile
     environment:
       - QUEUE_NAME=video_frames
       - DB_PATH=/data/results.db
@@ -36,7 +42,9 @@ services:
               capabilities: [gpu]
 
   ppe-detection:
-    image: ppe-detection:latest
+    build:
+      context: ./ppe-detection
+      dockerfile: Dockerfile
     environment:
       - QUEUE_NAME=video_frames
       - DB_PATH=/data/results.db
@@ -58,7 +66,9 @@ services:
       - "15672:15672"
 
   error-logging:
-    image: error-logging:latest
+    build:
+      context: ./error-logging
+      dockerfile: Dockerfile
     volumes:
       - ./data:/data
     ports:
