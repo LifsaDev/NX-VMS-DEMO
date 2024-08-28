@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  video-ingestion-1:
+    image: video-ingestion:latest
+    environment:
+      - CAMERA_URL=rtsp://camera1_url
+      - QUEUE_NAME=video_frames
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+
+  video-ingestion-2:
+    image: video-ingestion:latest
+    environment:
+      - CAMERA_URL=rtsp://camera2_url
+      - QUEUE_NAME=video_frames
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+
+  face-recognition:
+    image: face-recognition:latest
+    environment:
+      - QUEUE_NAME=video_frames
+      - DB_PATH=/data/results.db
+      - RABBITMQ_HOST=rabbitmq
+    volumes:
+      - ./data:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  ppe-detection:
+    image: ppe-detection:latest
+    environment:
+      - QUEUE_NAME=video_frames
+      - DB_PATH=/data/results.db
+      - RABBITMQ_HOST=rabbitmq
+    volumes:
+      - ./data:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  error-logging:
+    image: error-logging:latest
+    volumes:
+      - ./data:/data
+    ports:
+      - "5000:5000"
+
+volumes:
+  data:
